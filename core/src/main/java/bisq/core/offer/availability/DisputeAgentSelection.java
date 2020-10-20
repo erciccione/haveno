@@ -41,6 +41,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 @Slf4j
 public class DisputeAgentSelection {
+    public static final int LOOK_BACK_RANGE = 100;
+
     public static <T extends DisputeAgent> T getLeastUsedMediator(TradeStatisticsManager tradeStatisticsManager,
                                                                   DisputeAgentManager<T> disputeAgentManager) {
         return getLeastUsedDisputeAgent(tradeStatisticsManager,
@@ -60,16 +62,17 @@ public class DisputeAgentSelection {
                                                                        boolean isMediator) {
         // We take last 100 entries from trade statistics
         List<TradeStatistics3> list = new ArrayList<>(tradeStatisticsManager.getObservableTradeStatisticsSet());
-        list.sort(Comparator.comparing(TradeStatistics3::getDate));
+        list.sort(Comparator.comparing(TradeStatistics3::getDateAsLong));
         Collections.reverse(list);
         if (!list.isEmpty()) {
-            int max = Math.min(list.size(), 100);
+            int max = Math.min(list.size(), LOOK_BACK_RANGE);
             list = list.subList(0, max);
         }
 
         // We stored only first 4 chars of disputeAgents onion address
         List<String> lastAddressesUsedInTrades = list.stream()
                 .map(tradeStatistics3 -> isMediator ? tradeStatistics3.getMediator() : tradeStatistics3.getRefundAgent())
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         Set<String> disputeAgents = disputeAgentManager.getObservableMap().values().stream()

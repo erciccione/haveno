@@ -96,6 +96,8 @@ import org.jetbrains.annotations.NotNull;
 @Slf4j
 public class WalletsSetup {
 
+    public static final String PRE_SEGWIT_WALLET_BACKUP = "pre_segwit_bisq_BTC.wallet.backup";
+
     @Getter
     public final BooleanProperty walletsSetupFailed = new SimpleBooleanProperty();
 
@@ -411,6 +413,13 @@ public class WalletsSetup {
         } catch (IOException e) {
             log.error("Could not delete directory " + e.getMessage());
             e.printStackTrace();
+        }
+
+        File segwitBackup = new File(walletDir, PRE_SEGWIT_WALLET_BACKUP);
+        try {
+            FileUtil.deleteFileIfExists(segwitBackup);
+        } catch (IOException e) {
+            log.error(e.toString(), e);
         }
     }
 
