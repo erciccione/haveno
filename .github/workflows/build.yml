@@ -21,3 +21,10 @@ jobs:
         run: git lfs pull
       - name: Build with Gradle
         run: ./gradlew build --stacktrace
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: gradlew-report
+          path: 'desktop/build/reports/tests/test/index.html'
+
+        
